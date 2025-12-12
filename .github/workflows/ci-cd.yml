@@ -1,43 +1,43 @@
-name: Vite React CI/CD to EC2
+# name: Vite React CI/CD to EC2
 
-on:
-  push:
-    branches: [main]
+# on:
+#   push:
+#     branches: [main]
 
-permissions:
-  contents: read
+# permissions:
+#   contents: read
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
 
-      - name: Install dependencies and build
-        run: |
-          npm ci
-          npm run build
+#       - name: Install dependencies and build
+#         run: |
+#           npm ci
+#           npm run build
 
-      - name: Deploy to EC2 via SSH
-        env:
-          HOST: ${{ secrets.SERVER_HOST }}
-          USER: ${{ secrets.SERVER_USER }}
-          KEY: ${{ secrets.SERVER_SSH_KEY }}
-        run: |
-          echo "$KEY" > private_key.pem
-          chmod 600 private_key.pem
+#       - name: Deploy to EC2 via SSH
+#         env:
+#           HOST: ${{ secrets.SERVER_HOST }}
+#           USER: ${{ secrets.SERVER_USER }}
+#           KEY: ${{ secrets.SERVER_SSH_KEY }}
+#         run: |
+#           echo "$KEY" > private_key.pem
+#           chmod 600 private_key.pem
           
-          echo "Uploading files to EC2..."
-          rsync -avz -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/var/www/html/react-app
+#           echo "Uploading files to EC2..."
+#           rsync -avz -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" dist/ $USER@$HOST:/var/www/html/react-app
 
-          echo "Reloading Nginx..."
-          ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "sudo systemctl reload nginx"
+#           echo "Reloading Nginx..."
+#           ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST "sudo systemctl reload nginx"
           
-          rm -f private_key.pem
+#           rm -f private_key.pem
